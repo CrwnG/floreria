@@ -1,0 +1,10 @@
+export const SITE_NAME = 'Fiorella Balloons';
+export const SITE_TAGLINE = 'Flores, Globos y Regalos de Lujo en Puebla';
+export const WHATSAPP_NUMBER = '522221234567';
+export const DELIVERY_CITY = 'Puebla';
+export const DELIVERY_FEE = 99;
+export const FREE_DELIVERY_THRESHOLD = 799;
+export const STORE_ADDRESS = 'Col. La Paz, Puebla, Pue.';
+export const STORE_HOURS = 'Lun - Sáb: 9:00 - 20:00 | Dom: 10:00 - 15:00';
+export const STORE_EMAIL = 'hola@fiorellaballoons.mx';
+export const STORE_PHONE = '+52 222 123 4567';
