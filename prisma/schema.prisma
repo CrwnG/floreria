@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  nombre      String
+  descripcion String
+  imagen      String
+  orden       Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id               String      @id @default(cuid())
+  slug             String      @unique
+  nombre           String
+  descripcion      String
+  descripcionCorta String
+  precio           Float
+  precioOriginal   Float?
+  categoryId       String
+  category         Category    @relation(fields: [categoryId], references: [id])
+  ocasiones        String      // JSON string: ["cumpleanos","san-valentin"]
+  imagenes         String      // JSON string: ["url1","url2"]
+  badge            String?     // "bestseller" | "nuevo" | "oferta" | null
+  enStock          Boolean     @default(true)
+  destacado        Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  orderItems       OrderItem[]
+}
+
+model Order {
+  id                 String      @id @default(cuid())
+  clienteNombre      String
+  clienteTelefono    String
+  clienteEmail       String?
+  direccion          String?
+  notas              String?
+  subtotal           Float
+  envio              Float
+  total              Float
+  estado             String      @default("pendiente")
+  metodoPago         String      @default("whatsapp")
+  mercadoPagoId      String?
+  mercadoPagoStatus  String?
+  items              OrderItem[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  nombre    String
+  precio    Float
+  cantidad  Int
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  createdAt DateTime @default(now())
+}

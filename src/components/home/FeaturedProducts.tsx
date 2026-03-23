@@ -4,11 +4,9 @@ import { motion } from 'framer-motion';
 import { Container } from '@/components/ui/Container';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ProductCard } from '@/components/product/ProductCard';
-import { getFeaturedProducts } from '@/data/products';
+import { Product } from '@/types';
 
-export function FeaturedProducts() {
-  const products = getFeaturedProducts();
-
+export function FeaturedProducts({ products }: { products: Product[] }) {
   return (
     <section className="py-16 md:py-24 bg-white">
       <Container>

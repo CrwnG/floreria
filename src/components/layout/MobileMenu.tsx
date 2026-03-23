@@ -7,12 +7,12 @@ import { STORE_PHONE, WHATSAPP_NUMBER } from '@/lib/constants';
 
 const menuLinks = [
   { label: 'Inicio', href: '/' },
-  { label: 'Flores', href: '#flores' },
-  { label: 'Globos', href: '#globos' },
-  { label: 'Regalos', href: '#regalos' },
-  { label: 'Ocasiones', href: '#ocasiones' },
-  { label: 'Nuestra Historia', href: '#historia' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Flores', href: '/categoria/flores' },
+  { label: 'Globos', href: '/categoria/globos' },
+  { label: 'Regalos', href: '/categoria/regalos' },
+  { label: 'Ocasiones', href: '/#ocasiones' },
+  { label: 'Nuestra Historia', href: '/#historia' },
+  { label: 'Contacto', href: '/#contacto' },
 ];
 
 export function MobileMenu({

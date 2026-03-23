@@ -7,14 +7,17 @@ import { OccasionGrid } from '@/components/home/OccasionGrid';
 import { TestimonialsCarousel } from '@/components/home/TestimonialsCarousel';
 import { InstagramFeed } from '@/components/home/InstagramFeed';
 import { NewsletterSignup } from '@/components/home/NewsletterSignup';
+import { getFeaturedProducts } from '@/lib/data';
 
-export default function Home() {
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
+
   return (
     <>
       <HeroSection />
       <CountdownTimer />
       <CategoryCards />
-      <FeaturedProducts />
+      <FeaturedProducts products={featuredProducts} />
       <BrandStory />
       <OccasionGrid />
       <TestimonialsCarousel />

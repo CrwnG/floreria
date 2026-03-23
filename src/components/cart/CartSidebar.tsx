@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 import { useCartStore } from '@/store/cart-store';
 import { formatPrice } from '@/lib/utils';
 import { CartItem } from './CartItem';
@@ -10,7 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE } from '@/lib/constants';
 
 export function CartSidebar() {
-  const { items, isOpen, closeCart, getTotal } = useCartStore();
+  const { items, isOpen, closeCart } = useCartStore();
   const total = items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
   const itemCount = items.reduce((sum, item) => sum + item.cantidad, 0);
   const freeDelivery = total >= FREE_DELIVERY_THRESHOLD;
@@ -109,9 +110,11 @@ export function CartSidebar() {
                     </div>
                   </div>
 
-                  <Button fullWidth size="lg">
-                    Ir a Pagar
-                  </Button>
+                  <Link href="/checkout" onClick={closeCart}>
+                    <Button fullWidth size="lg">
+                      Ir a Pagar
+                    </Button>
+                  </Link>
 
                   <button
                     onClick={closeCart}

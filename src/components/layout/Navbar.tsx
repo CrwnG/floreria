@@ -8,17 +8,17 @@ import { useCartStore } from '@/store/cart-store';
 import { MobileMenu } from './MobileMenu';
 
 const navLinks = [
-  { label: 'Flores', href: '#flores' },
-  { label: 'Globos', href: '#globos' },
-  { label: 'Regalos', href: '#regalos' },
-  { label: 'Ocasiones', href: '#ocasiones' },
-  { label: 'Nuestra Historia', href: '#historia' },
+  { label: 'Flores', href: '/categoria/flores' },
+  { label: 'Globos', href: '/categoria/globos' },
+  { label: 'Regalos', href: '/categoria/regalos' },
+  { label: 'Ocasiones', href: '/#ocasiones' },
+  { label: 'Nuestra Historia', href: '/#historia' },
 ];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { toggleCart, getItemCount } = useCartStore();
+  const toggleCart = useCartStore((s) => s.toggleCart);
   const itemCount = useCartStore((s) => s.items.reduce((sum, i) => sum + i.cantidad, 0));
 
   useEffect(() => {

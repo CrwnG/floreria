@@ -25,7 +25,7 @@ export function CategoryCards() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.15, duration: 0.6 }}
             >
-              <Link href={`#${category.slug}`} className="group block relative aspect-[3/4] overflow-hidden">
+              <Link href={`/categoria/${category.slug}`} className="group block relative aspect-[3/4] overflow-hidden">
                 <Image
                   src={category.imagen}
                   alt={category.nombre}

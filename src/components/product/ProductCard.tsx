@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { Product } from '@/types';
@@ -35,7 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="group relative">
+    <Link href={`/producto/${product.slug}`} className="group relative block">
       {/* Image container */}
       <div className="relative aspect-[3/4] overflow-hidden bg-fiorella-light-gray mb-3">
         <Image
@@ -106,6 +107,6 @@ export function ProductCard({ product }: { product: Product }) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

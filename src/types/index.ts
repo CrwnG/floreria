@@ -67,3 +67,33 @@ export interface CartItem {
   precio: number;
   cantidad: number;
 }
+
+export type OrderStatus = 'pendiente' | 'pagado' | 'confirmado' | 'enviado' | 'entregado' | 'cancelado';
+
+export type PaymentMethod = 'mercadopago' | 'whatsapp';
+
+export interface OrderItem {
+  id: string;
+  productId: string;
+  nombre: string;
+  precio: number;
+  cantidad: number;
+}
+
+export interface Order {
+  id: string;
+  clienteNombre: string;
+  clienteTelefono: string;
+  clienteEmail?: string;
+  direccion?: string;
+  notas?: string;
+  subtotal: number;
+  envio: number;
+  total: number;
+  estado: OrderStatus;
+  metodoPago: PaymentMethod;
+  mercadoPagoId?: string;
+  mercadoPagoStatus?: string;
+  items: OrderItem[];
+  createdAt: Date;
+}
