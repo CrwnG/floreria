@@ -134,10 +134,30 @@ export async function toggleProductStock(formData: FormData) {
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) throw new Error('Producto no encontrado');
 
+  const newStockStatus = !product.enStock;
+
   await prisma.product.update({
     where: { id },
-    data: { enStock: !product.enStock },
+    data: { enStock: newStockStatus },
   });
+
+  // Notify n8n webhook when product goes back in stock
+  if (newStockStatus && process.env.N8N_WEBHOOK_STOCK_URL) {
+    fetch(process.env.N8N_WEBHOOK_STOCK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId: product.id,
+        productName: product.nombre,
+        productSlug: product.slug,
+        productPrice: product.precio,
+        productImage: JSON.parse(product.imagenes)[0],
+        enStock: true,
+      }),
+    }).catch(() => {
+      // Non-blocking: don't fail the stock toggle if n8n is unreachable
+    });
+  }
 
   revalidatePath('/admin/productos');
   revalidatePath('/');

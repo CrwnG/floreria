@@ -10,6 +10,7 @@ const menuLinks = [
   { label: 'Flores', href: '/categoria/flores' },
   { label: 'Globos', href: '/categoria/globos' },
   { label: 'Regalos', href: '/categoria/regalos' },
+  { label: 'Favoritos', href: '/favoritos' },
   { label: 'Ocasiones', href: '/#ocasiones' },
   { label: 'Nuestra Historia', href: '/#historia' },
   { label: 'Contacto', href: '/#contacto' },
