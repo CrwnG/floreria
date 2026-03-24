@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Minus, Plus, Check, MessageCircle } from 'lucide-react';
+import { Minus, Plus, Check, MessageCircle, Heart } from 'lucide-react';
 import { Product } from '@/types';
 import { cn, formatPrice } from '@/lib/utils';
 import { WHATSAPP_NUMBER } from '@/lib/constants';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { ProductBadge } from './ProductBadge';
 import { ImageGallery } from './ImageGallery';
 import { useCartStore } from '@/store/cart-store';
+import { useWishlistStore } from '@/store/wishlist-store';
 
 interface ProductDetailProps {
   product: Product;
@@ -18,6 +19,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
 
   const handleAddToCart = () => {
     addItem({
@@ -163,18 +166,49 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
         </Button>
 
-        {/* WhatsApp Button */}
-        <Button
-          variant="outline-gold"
-          size="lg"
-          fullWidth
-          onClick={handleWhatsApp}
-        >
-          <span className="flex items-center gap-2">
-            <MessageCircle size={18} />
-            Pedir por WhatsApp
-          </span>
-        </Button>
+        {/* Wishlist + WhatsApp row */}
+        <div className="flex gap-3">
+          <button
+            onClick={() =>
+              toggleWishlist({
+                productoId: product.id,
+                slug: product.slug,
+                nombre: product.nombre,
+                imagen: product.imagenes[0],
+                precio: product.precio,
+                precioOriginal: product.precioOriginal,
+              })
+            }
+            className={cn(
+              'flex items-center justify-center gap-2 px-5 py-3 border text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer',
+              isWishlisted
+                ? 'border-fiorella-rose-deep bg-fiorella-rose-deep/5 text-fiorella-rose-deep'
+                : 'border-fiorella-light-gray text-fiorella-charcoal hover:border-fiorella-rose hover:text-fiorella-rose'
+            )}
+            aria-label={isWishlisted ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+          >
+            <Heart
+              size={18}
+              className={cn(
+                'transition-all duration-300',
+                isWishlisted && 'fill-fiorella-rose-deep'
+              )}
+            />
+            {isWishlisted ? 'Guardado' : 'Favorito'}
+          </button>
+
+          <Button
+            variant="outline-gold"
+            size="lg"
+            className="flex-1"
+            onClick={handleWhatsApp}
+          >
+            <span className="flex items-center gap-2">
+              <MessageCircle size={18} />
+              Pedir por WhatsApp
+            </span>
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,123 @@
+{
+  "name": "Fiorella - Wishlist Back in Stock WhatsApp Notification",
+  "description": "Monitors product stock changes and notifies customers via WhatsApp when a wishlisted product is back in stock. Connect this to your Fiorella admin panel or database webhook.",
+  "nodes": [
+    {
+      "name": "Webhook - Stock Update",
+      "type": "n8n-nodes-base.webhook",
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fiorella-stock-update",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "notes": "Receives POST from your Fiorella admin when a product is toggled back in stock. Expected payload: { productId, productName, productSlug, productPrice, productImage }"
+    },
+    {
+      "name": "Filter - Only Back in Stock",
+      "type": "n8n-nodes-base.filter",
+      "position": [450, 300],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.enStock }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "notes": "Only proceed if the product was toggled TO in-stock (not out of stock)"
+    },
+    {
+      "name": "Query Wishlist DB",
+      "type": "n8n-nodes-base.postgres",
+      "position": [650, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT w.customer_phone, w.customer_name, p.nombre as product_name, p.slug, p.precio FROM wishlist_subscriptions w JOIN \"Product\" p ON w.product_id = p.id WHERE w.product_id = '{{ $json.productId }}' AND w.notified = false",
+        "additionalFields": {}
+      },
+      "notes": "Queries all customers who wishlisted this product and haven't been notified yet. You'll need a 'wishlist_subscriptions' table in your Supabase DB."
+    },
+    {
+      "name": "Split Customers",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [850, 300],
+      "parameters": {
+        "batchSize": 1
+      },
+      "notes": "Process one customer at a time to avoid WhatsApp rate limits"
+    },
+    {
+      "name": "Send WhatsApp Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1050, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.whatsapp.com/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $json.customer_phone }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ '¡Hola ' + $json.customer_name + '! 🌸\\n\\nEl producto que guardaste en favoritos ya está disponible:\\n\\n*' + $json.product_name + '*\\nPrecio: $' + $json.precio + ' MXN\\n\\n🛒 Cómpralo antes de que se agote:\\nhttps://fiorellaballoons.mx/producto/' + $json.slug + '\\n\\n— Fiorella Balloons 💐' }}"
+            }
+          ]
+        }
+      },
+      "notes": "Sends a personalized WhatsApp notification. Replace with your WhatsApp Business API endpoint (Twilio, Meta Cloud API, or 360dialog)."
+    },
+    {
+      "name": "Mark as Notified",
+      "type": "n8n-nodes-base.postgres",
+      "position": [1250, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE wishlist_subscriptions SET notified = true, notified_at = NOW() WHERE product_id = '{{ $json.productId }}' AND customer_phone = '{{ $json.customer_phone }}'",
+        "additionalFields": {}
+      },
+      "notes": "Marks the subscription as notified so we don't send duplicate messages"
+    }
+  ],
+  "connections": {
+    "Webhook - Stock Update": {
+      "main": [
+        [{ "node": "Filter - Only Back in Stock", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter - Only Back in Stock": {
+      "main": [
+        [{ "node": "Query Wishlist DB", "type": "main", "index": 0 }]
+      ]
+    },
+    "Query Wishlist DB": {
+      "main": [
+        [{ "node": "Split Customers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Customers": {
+      "main": [
+        [{ "node": "Send WhatsApp Message", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send WhatsApp Message": {
+      "main": [
+        [{ "node": "Mark as Notified", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "setup_instructions": {
+    "step_1": "Create a 'wishlist_subscriptions' table in your Supabase/PostgreSQL database with columns: id, product_id, customer_phone, customer_name, notified (boolean), notified_at (timestamp), created_at",
+    "step_2": "Add an API endpoint in your Fiorella app that creates wishlist subscriptions when customers provide their phone number",
+    "step_3": "Add a webhook call in your admin product edit page that fires when enStock is toggled to true",
+    "step_4": "Configure your WhatsApp Business API credentials (Twilio or Meta Cloud API)",
+    "step_5": "Import this workflow into n8n and configure the PostgreSQL and WhatsApp credentials",
+    "step_6": "Activate the workflow and test with a sample product toggle"
+  }
+}

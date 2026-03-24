@@ -8,11 +8,13 @@ import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { ProductBadge } from './ProductBadge';
 import { useCartStore } from '@/store/cart-store';
+import { useWishlistStore } from '@/store/wishlist-store';
 
 export function ProductCard({ product }: { product: Product }) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -32,7 +34,14 @@ export function ProductCard({ product }: { product: Product }) {
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    toggleWishlist({
+      productoId: product.id,
+      slug: product.slug,
+      nombre: product.nombre,
+      imagen: product.imagenes[0],
+      precio: product.precio,
+      precioOriginal: product.precioOriginal,
+    });
   };
 
   return (

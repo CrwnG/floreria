@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Heart, ShoppingBag, Menu, X } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { useCartStore } from '@/store/cart-store';
+import { useWishlistStore } from '@/store/wishlist-store';
 import { MobileMenu } from './MobileMenu';
 
 const navLinks = [
@@ -20,6 +21,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const toggleCart = useCartStore((s) => s.toggleCart);
   const itemCount = useCartStore((s) => s.items.reduce((sum, i) => sum + i.cantidad, 0));
+  const wishlistCount = useWishlistStore((s) => s.items.length);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -76,9 +78,18 @@ export function Navbar() {
               <button className="text-fiorella-charcoal hover:text-fiorella-gold transition-colors hidden sm:block cursor-pointer" aria-label="Buscar">
                 <Search size={20} />
               </button>
-              <button className="text-fiorella-charcoal hover:text-fiorella-gold transition-colors hidden sm:block cursor-pointer" aria-label="Favoritos">
+              <Link
+                href="/favoritos"
+                className="text-fiorella-charcoal hover:text-fiorella-gold transition-colors hidden sm:block relative"
+                aria-label="Favoritos"
+              >
                 <Heart size={20} />
-              </button>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-fiorella-rose-deep text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-fade-in">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
               <button
                 onClick={toggleCart}
                 className="text-fiorella-charcoal hover:text-fiorella-gold transition-colors relative cursor-pointer"
