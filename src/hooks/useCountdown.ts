@@ -11,11 +11,15 @@ interface CountdownResult {
 }
 
 export function useCountdown(targetDate: string): CountdownResult {
-  const [timeLeft, setTimeLeft] = useState<CountdownResult>(
-    calculateTimeLeft(targetDate)
-  );
+  // Inicializar con ceros para evitar hydration mismatch (servidor vs cliente)
+  const [timeLeft, setTimeLeft] = useState<CountdownResult>({
+    days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: false,
+  });
 
   useEffect(() => {
+    // Calcular inmediatamente al montar (solo en cliente)
+    setTimeLeft(calculateTimeLeft(targetDate));
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);

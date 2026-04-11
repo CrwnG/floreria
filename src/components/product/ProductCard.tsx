@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { ProductBadge } from './ProductBadge';
@@ -14,7 +14,13 @@ export function ProductCard({ product }: { product: Product }) {
   const [justAdded, setJustAdded] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
-  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
+  const wishlistCheck = useWishlistStore((s) => s.isWishlisted);
+
+  // Defer wishlist state to avoid hydration mismatch (localStorage no existe en servidor)
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  useEffect(() => {
+    setIsWishlisted(wishlistCheck(product.id));
+  }, [wishlistCheck, product.id]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 export const SITE_NAME = 'Fiorella Balloons';
 export const SITE_TAGLINE = 'Flores, Globos y Regalos de Lujo en Puebla';
-export const WHATSAPP_NUMBER = '522221234567';
+export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '522221234567';
 export const DELIVERY_CITY = 'Puebla';
 export const DELIVERY_FEE = 99;
 export const FREE_DELIVERY_THRESHOLD = 799;

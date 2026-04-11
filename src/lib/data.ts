@@ -1,6 +1,16 @@
 import { prisma } from './prisma';
 import type { Product, Category, ProductCategory, Occasion, BadgeType } from '@/types';
 
+// MED-5: Safe JSON parse — evita que datos corruptos rompan la pagina completa
+function safeJsonParse<T>(json: string, fallback: T): T {
+  try {
+    return JSON.parse(json);
+  } catch {
+    console.error(`Error al parsear JSON: ${json.substring(0, 100)}`);
+    return fallback;
+  }
+}
+
 function transformProduct(dbProduct: {
   id: string;
   slug: string;
@@ -25,8 +35,8 @@ function transformProduct(dbProduct: {
     precio: dbProduct.precio,
     precioOriginal: dbProduct.precioOriginal ?? undefined,
     categoria: dbProduct.category.slug as ProductCategory,
-    ocasiones: JSON.parse(dbProduct.ocasiones) as Occasion[],
-    imagenes: JSON.parse(dbProduct.imagenes) as string[],
+    ocasiones: safeJsonParse<Occasion[]>(dbProduct.ocasiones, []),
+    imagenes: safeJsonParse<string[]>(dbProduct.imagenes, []),
     badge: (dbProduct.badge as BadgeType) ?? undefined,
     enStock: dbProduct.enStock,
     destacado: dbProduct.destacado,
