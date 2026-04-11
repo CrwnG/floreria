@@ -257,9 +257,14 @@ async function main() {
   }
   console.log(`Created ${products.length} products`);
 
-  // Create default admin user
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Fiorella2024!';
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@fiorella.mx';
+  // LOW-2: Requerir credenciales del admin via env (sin fallbacks predecibles)
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminPassword || !adminEmail) {
+    throw new Error(
+      'ADMIN_EMAIL y ADMIN_PASSWORD son requeridos en el .env para crear el usuario admin.'
+    );
+  }
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
   await prisma.adminUser.upsert({
     where: { email: adminEmail },

@@ -18,10 +18,15 @@ export async function updateOrderStatus(formData: FormData) {
     throw new Error('Estado no valido');
   }
 
-  await prisma.order.update({
-    where: { id },
-    data: { estado },
-  });
+  try {
+    await prisma.order.update({
+      where: { id },
+      data: { estado },
+    });
+  } catch (error) {
+    console.error('Error al actualizar estado del pedido:', error);
+    throw new Error('Error al actualizar el estado del pedido. Intenta de nuevo.');
+  }
 
   revalidatePath('/admin/pedidos');
 }

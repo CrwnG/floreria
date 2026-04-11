@@ -41,22 +41,27 @@ export async function createProduct(formData: FormData) {
     throw new Error('Faltan campos requeridos');
   }
 
-  await prisma.product.create({
-    data: {
-      nombre,
-      slug,
-      descripcion,
-      descripcionCorta,
-      precio,
-      precioOriginal,
-      categoryId,
-      ocasiones: JSON.stringify(ocasiones),
-      imagenes: JSON.stringify(imagenes),
-      badge: badge === '' ? null : badge,
-      enStock,
-      destacado,
-    },
-  });
+  try {
+    await prisma.product.create({
+      data: {
+        nombre,
+        slug,
+        descripcion,
+        descripcionCorta,
+        precio,
+        precioOriginal,
+        categoryId,
+        ocasiones: JSON.stringify(ocasiones),
+        imagenes: JSON.stringify(imagenes),
+        badge: badge === '' ? null : badge,
+        enStock,
+        destacado,
+      },
+    });
+  } catch (error) {
+    console.error('Error al crear producto:', error);
+    throw new Error('Error al crear el producto. Verifica que el slug no este duplicado e intenta de nuevo.');
+  }
 
   revalidatePath('/admin/productos');
   revalidatePath('/');
@@ -88,23 +93,28 @@ export async function updateProduct(id: string, formData: FormData) {
     throw new Error('Faltan campos requeridos');
   }
 
-  await prisma.product.update({
-    where: { id },
-    data: {
-      nombre,
-      slug,
-      descripcion,
-      descripcionCorta,
-      precio,
-      precioOriginal,
-      categoryId,
-      ocasiones: JSON.stringify(ocasiones),
-      imagenes: JSON.stringify(imagenes),
-      badge: badge === '' ? null : badge,
-      enStock,
-      destacado,
-    },
-  });
+  try {
+    await prisma.product.update({
+      where: { id },
+      data: {
+        nombre,
+        slug,
+        descripcion,
+        descripcionCorta,
+        precio,
+        precioOriginal,
+        categoryId,
+        ocasiones: JSON.stringify(ocasiones),
+        imagenes: JSON.stringify(imagenes),
+        badge: badge === '' ? null : badge,
+        enStock,
+        destacado,
+      },
+    });
+  } catch (error) {
+    console.error('Error al actualizar producto:', error);
+    throw new Error('Error al actualizar el producto. Verifica los datos e intenta de nuevo.');
+  }
 
   revalidatePath('/admin/productos');
   revalidatePath('/');
@@ -118,7 +128,12 @@ export async function deleteProduct(formData: FormData) {
   const id = formData.get('id') as string;
   if (!id) throw new Error('ID de producto requerido');
 
-  await prisma.product.delete({ where: { id } });
+  try {
+    await prisma.product.delete({ where: { id } });
+  } catch (error) {
+    console.error('Error al eliminar producto:', error);
+    throw new Error('Error al eliminar el producto. Puede que tenga pedidos asociados.');
+  }
 
   revalidatePath('/admin/productos');
   revalidatePath('/');

@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 // Fuentes de confianza por directiva CSP
 const CSP_DIRECTIVES = {
   "default-src":    ["'self'"],
+  // LOW-3: 'unsafe-inline' es necesario para Next.js y MercadoPago SDK.
+  // Idealmente se usarian nonces, pero la integracion con MP lo dificulta.
   "script-src":     ["'self'", "'unsafe-inline'", "https://sdk.mercadopago.com", "https://*.mercadopago.com"],
   "style-src":      ["'self'", "'unsafe-inline'"],
   "img-src":        ["'self'", "data:", "blob:", "https://res.cloudinary.com", "https://images.unsplash.com"],
@@ -70,6 +72,11 @@ const nextConfig: NextConfig = {
             // Limita el acceso a APIs sensibles del navegador
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), payment=(self)",
+          },
+          {
+            // LOW-1: Fuerza HTTPS con HSTS (1 anio, subdominios, preload)
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload",
           },
         ],
       },

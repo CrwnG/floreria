@@ -25,6 +25,19 @@ interface CheckoutBody {
 
 export async function POST(request: NextRequest) {
   try {
+    // ─── MED-1: Protección CSRF — verificar que el origen sea nuestro sitio ────
+    const origin = request.headers.get('origin');
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (appUrl && origin) {
+      const allowedOrigin = new URL(appUrl).origin;
+      if (origin !== allowedOrigin) {
+        return NextResponse.json(
+          { error: 'Origen no permitido.' },
+          { status: 403 }
+        );
+      }
+    }
+
     const body: CheckoutBody = await request.json();
 
     const { clienteNombre, clienteTelefono, clienteEmail, direccion, notas, items, metodoPago } =
@@ -38,9 +51,63 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ─── MED-2: Validar longitud de campos ───────────────────────────────────
+    if (clienteNombre.trim().length > 100) {
+      return NextResponse.json(
+        { error: 'El nombre es demasiado largo (maximo 100 caracteres).' },
+        { status: 400 }
+      );
+    }
+    if (clienteTelefono.trim().length > 20) {
+      return NextResponse.json(
+        { error: 'El telefono es demasiado largo (maximo 20 caracteres).' },
+        { status: 400 }
+      );
+    }
+    if (direccion && direccion.trim().length > 500) {
+      return NextResponse.json(
+        { error: 'La direccion es demasiado larga (maximo 500 caracteres).' },
+        { status: 400 }
+      );
+    }
+    if (notas && notas.trim().length > 1000) {
+      return NextResponse.json(
+        { error: 'Las notas son demasiado largas (maximo 1000 caracteres).' },
+        { status: 400 }
+      );
+    }
+
+    // ─── MED-3: Validar formato de email si fue proporcionado ────────────────
+    if (clienteEmail && clienteEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(clienteEmail.trim()) || clienteEmail.trim().length > 254) {
+        return NextResponse.json(
+          { error: 'El correo electronico no es valido.' },
+          { status: 400 }
+        );
+      }
+    }
+
     if (!items || items.length === 0) {
       return NextResponse.json(
         { error: 'El carrito esta vacio.' },
+        { status: 400 }
+      );
+    }
+
+    // ─── HIGH-2: Validar cantidad de cada item ───────────────────────────────
+    for (const item of items) {
+      if (!Number.isInteger(item.cantidad) || item.cantidad < 1 || item.cantidad > 50) {
+        return NextResponse.json(
+          { error: 'Cantidad no valida. Debe ser entre 1 y 50 por producto.' },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (items.length > 20) {
+      return NextResponse.json(
+        { error: 'Demasiados productos en el carrito (maximo 20).' },
         { status: 400 }
       );
     }
